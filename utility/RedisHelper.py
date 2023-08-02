@@ -21,7 +21,7 @@ class RedisHelper(object):
         if RedisHelper.__initialized:
             return
 
-        self.__redis = StrictRedis(host=kwargs.get('host'), port=kwargs.get('port'), password=kwargs.get('password'))
+        self.__redis = StrictRedis(host=kwargs.get('host'), port=kwargs.get('port'), password=kwargs.get('password')).close()
         self.__frame_queue = kwargs.get('frame_queue')
         self.__chunk_queue = kwargs.get('chunk_queue')
 

@@ -5,8 +5,8 @@ from os import mkdir
 
 class OssHelper(object):
     def __init__(self, **kwargs):
-        auth = Auth(kwargs.get('access_key_id'), kwargs.get('access_key_secret'))
-        self.__bucket = Bucket(auth, kwargs.get('endpoint'), kwargs.get('bucket_name'))
+        auth = Auth(**kwargs.get('auth'))
+        self.__bucket = Bucket(auth, **kwargs.get('bucket'))
 
     def download(self, key, dest):
         if exists(dest):
@@ -24,10 +24,14 @@ class OssHelper(object):
 
 if __name__ == '__main__':
     oss_config = {
-        'access_key_id': '',
-        'access_key_secret': '',
-        'endpoint': '',
-        'bucket_name': ''
+        'auth': {
+            'access_key_id': '',
+            'access_key_secret': ''
+        },
+        'bucket': {
+            'endpoint': 'https://oss-cn-beijing.aliyuncs.com',
+            'bucket_name': ''
+        }
     }
     oss = OssHelper(**oss_config)
     oss.download('prod/photos/002163ecc833e4fae5783e3a2301c18c.jpg', '/Users/Colin/Downloads/sample.jpg')
