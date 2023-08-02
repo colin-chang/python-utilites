@@ -3,19 +3,11 @@ import logging
 
 
 class MySqlHelper(object):
-    """SqlHelper for MySQL"""
-
     def __init__(self, **kwargs):
-        self.__kwargs = kwargs
+        self.__connection = connect(**kwargs)
+        self.__cursor = self.__connection.cursor()
 
     def __enter__(self):
-        self.__connection = connect(**self.__kwargs)
-        # self.__connection = connect(host=self.__kwargs.get('host'),
-        #                             port=self.__kwargs.get('port'),
-        #                             user=self.__kwargs.get('user'),
-        #                             password=self.__kwargs.get('password'),
-        #                             database=self.__kwargs.get('database'))
-        self.__cursor = self.__connection.cursor()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -25,35 +17,24 @@ class MySqlHelper(object):
             self.__cursor.close()
 
     def execute_datatable(self, sql, *args):
-        """fetch all data records by once"""
-        self.__cursor.execute(sql, *args)
+        self.__cursor.execute(sql, args)
         return self.__cursor.fetchall()
 
     def execute_datareader(self, sql, *args):
-        """generator of the query result"""
 
-        self.__cursor.execute(sql, *args)
+        self.__cursor.execute(sql, args)
         while True:
             row = self.__cursor.fetchone()
             if not row:
                 break
             yield row
 
-    def execute_nonquery(self, sql, *args):
-        """
-        execute nonquery including insert/update/delete.it supports batch records by transaction
-        :param sql:
-        :param args:
-        :return:
-        """
-
+    def execute_nonquery(self, sql, *args, many=False):
         try:
-            if len(args) > 1:
-                print(123)
-                affected = self.__cursor.executemany(sql, *args)
+            if many:
+                affected = self.__cursor.executemany(sql, [("Tom", 1, 2), ("Jerry", 2, 1)])
             else:
-                affected = self.__cursor.execute(sql, *args)
-
+                affected = self.__cursor.execute(sql, args)
             self.__cursor.connection.commit()
             return affected
         except Exception as ex:
@@ -71,16 +52,17 @@ if __name__ == '__main__':
         'database': 'hc-dev-gam'
     }
     with MySqlHelper(**db_config) as helper:
-        students = helper.execute_datatable("select * from students where id<=%s", [4])
+        students = helper.execute_datatable("select * from students where id<=%s", 4)
         print(students)
-        #
-        # students = helper.execute_datareader("select * from students where id<=%s", [4])
+
+        # students = helper.execute_datareader("select * from students where id between %s and %s", 4, 8)
         # for s in students:
         #     print(s)
 
-        # affected = helper.execute_nonquery("delete from students where id between %s and %s", [4, 8])
+        # affected = helper.execute_nonquery("delete from students where id between %s and %s", 10, 20)
         # print("Affected rows: %d" % affected)
 
-        # records = [("Tom", 1, 2), ("Jerry", 2, 1)]
-        # affected = helper.execute_nonquery("insert into students (`name`,gender,classId) values (%s,%s,%s)", records)
+        # records = (("Tom", 1, 2), ("Jerry", 2, 1))
+        # affected = helper.execute_nonquery("insert into students (`name`,gender,classId) values (%s,%s,%s)", *records,
+        #                                    many=True)
         # print("Affected rows: %d" % affected)
