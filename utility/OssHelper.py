@@ -17,7 +17,7 @@ class OssHelper(object):
             raise FileNotFoundError()
         if not isfile(filename):
             raise Exception(f'{filename} must be a file')
-        self.__bucket.put_object_from_file(key, filename, **kwargs)
+        return self.__bucket.put_object_from_file(key, filename, **kwargs)
 
     def download(self, key, filename, **kwargs):
         """
@@ -30,7 +30,7 @@ class OssHelper(object):
         if len(downloads) > 0 and not exists(downloads):
             mkdir(downloads)
 
-        self.__bucket.get_object_to_file(key, filename, **kwargs)
+        return self.__bucket.get_object_to_file(key, filename, **kwargs)
 
     def list_objects(self, prefix='', delimiter='', marker='', max_keys=100, **kwargs):
         return islice(ObjectIterator(self.__bucket, prefix, delimiter, marker, max_keys, **kwargs), max_keys)
