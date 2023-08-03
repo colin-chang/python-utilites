@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='colin_utility',
-    version='1.0.1',
+    version='1.0.2',
     description="常用工具集",
     author="colin chang",
     packages=find_packages(),
