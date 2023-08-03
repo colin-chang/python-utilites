@@ -6,5 +6,5 @@
 # 清理
 rm -rf dist colin_utility.egg-info
 # 打包
-python3 setup.py sdist
+python setup.py sdist
 ```
