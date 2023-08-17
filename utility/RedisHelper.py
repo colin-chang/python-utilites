@@ -16,6 +16,9 @@ class RedisHelper(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__redis.close()
 
+    def __del__(self):
+        self.__redis.close()
+
     def string_set(self, name, value, **kwargs):
         return self.__redis.set(name, value, **kwargs)
 
@@ -79,6 +82,9 @@ class RedisHelper(object):
     def hash_get(self, name, *keys):
         keys = list(keys) if len(keys) > 0 else self.__redis.hkeys(name)
         return self.__decode(self.__redis.hmget(name, keys))
+
+    def hash_del(self, name, *keys):
+        return self.__redis.hdel(name, *keys)
 
     def hash_remove(self, name, *keys):
         return self.__redis.hdel(name, *keys)
